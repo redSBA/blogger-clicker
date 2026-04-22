@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ютубер Кликер</title>
+<style>
+    @font-face {
+        font-family: 'MinecraftBold';
+        src: url('https://raw.githubusercontent.com/redSBA/blogger-clicker/main/Minecraft-Five-Bold-4ded8.otf') format('opentype');
+        font-weight: bold;
+        font-style: normal;
+    }
+    * { box-sizing: border-box; }
+    body {
+        font-family: 'MinecraftBold', monospace;
+        background: linear-gradient(135deg, #1a0033, #330066, #1a0033);
+        background-size: 400% 400%;
+        animation: bgPulse 8s ease infinite;
+        color: #fff;
+        text-align: center;
+        margin: 0;
+        padding: 10px;
+        overflow-x: hidden;
+        touch-action: manipulation;
+        min-height: 100vh;
+    }
+    @keyframes bgPulse {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    .particle {
+        position: fixed;
+        border-radius: 50%;
+        pointer-events: none;
+        animation: particleFloat linear infinite;
+        opacity: 0.4;
+    }
+    @keyframes particleFloat {
+        0%   { transform: translateY(100vh) rotate(0deg);   opacity: 0; }
+        10%  { opacity: 0.4; }
+        90%  { opacity: 0.4; }
+        100% { transform: translateY(-20px) rotate(720deg); opacity: 0; }
+    }
+    h1 {
+        font-size: 28px;
+        animation: titleGlow 2s ease-in-out infinite alternate;
+        margin-bottom: 10px;
+    }
+    @keyframes titleGlow {
+        from { text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff; }
+        to   { text-shadow: 0 0 20px #ff00ff, 0 0 40px #ff00ff, 0 0 60px #ff00ff; }
+    }
+    #game { max-width: 100%; margin: 0 auto; position: relative; }
+    #big-clicker {
+        width: 260px; height: 260px;
+        background: url('https://i.pinimg.com/736x/f4/b0/9e/f4b09ec9f44899c20b67b995ad11961f.jpg') center/cover;
+        border: 8px solid #ff00ff;
+        border-radius: 50%;
+        margin: 20px auto;
+        cursor: pointer;
+        box-shadow: 0 0 40px #ff00ff, 0 0 80px rgba(255,0,255,0.3);
+        transition: transform 0.08s, box-shadow 0.08s;
+        animation: clickerPulse 3s ease-in-out infinite;
+        position: relative; z-index: 1;
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
+    }
+    @keyframes clickerPulse {
+        0%,100% { box-shadow: 0 0 40px #ff00ff, 0 0 80px rgba(255,0,255,0.3); }
+        50%     { box-shadow: 0 0 60px #ff00ff, 0 0 120px rgba(255,0,255,0.5); }
+    }
+    #big-clicker:active { transform: scale(0.92); box-shadow: 0 0 20px #ff00ff; animation: none; }
+    .stats {
+        font-size: 22px; margin: 15px 0; line-height: 1.6;
+        background: rgba(255,255,255,0.05);
+        border: 2px solid rgba(255,0,255,0.3);
+        border-radius: 15px; padding: 15px;
+        backdrop-filter: blur(5px);
+    }
+    .stats span { color: #00ffcc; text-shadow: 0 0 8px #00ffcc; }
+    .controls { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    button {
+        background: linear-gradient(135deg, #cc00cc, #ff00ff);
+        color: white; border: none;
+        padding: 14px 28px; font-size: 18px;
+        border-radius: 12px; cursor: pointer; margin: 0;
+        width: 90%; max-width: 320px;
+        font-family: 'MinecraftBold', monospace;
+        transition: transform 0.1s, box-shadow 0.1s;
+        box-shadow: 0 4px 15px rgba(255,0,255,0.4);
+    }
+    button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,0,255,0.6); }
+    button:active:not(:disabled) { transform: translateY(1px); }
+    button:disabled { background: linear-gradient(135deg,#333,#555); cursor: not-allowed; box-shadow: none; }
+    .modal {
+        display: none; position: fixed;
+        top:0; left:0; right:0; bottom:0;
+        background: rgba(0,0,0,0.95);
+        z-index: 200; padding: 15px; overflow-y: auto;
+        animation: modalIn 0.25s ease-out;
+    }
+    @keyframes modalIn {
+        from { opacity:0; transform:scale(0.95); }
+        to   { opacity:1; transform:scale(1); }
+    }
+    .modal-content {
+        max-width: 100%; margin: 20px auto;
+        background: linear-gradient(135deg,#1f0033,#0d0020);
+        border: 5px solid #00ffcc; border-radius: 20px; padding: 20px;
+        box-shadow: 0 0 40px rgba(0,255,204,0.3);
+        animation: contentSlide 0.3s ease-out;
+    }
+    @keyframes contentSlide {
+        from { transform: translateY(30px); opacity:0; }
+        to   { transform: translateY(0); opacity:1; }
+    }
+    .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+    .close-btn {
+        background: linear-gradient(135deg,#aa0000,#ff0000);
+        color:white; border:none; padding:10px 18px; font-size:16px;
+        border-radius:8px; cursor:pointer;
+        font-family:'MinecraftBold',monospace;
+        width:auto; max-width:none;
+        box-shadow: 0 4px 12px rgba(255,0,0,0.4);
+    }
+    .shop-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:12px; }
+    .item {
+        background:rgba(255,255,255,0.07); padding:14px;
+        border-radius:15px; border:3px solid #00ffcc; text-align:left;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .item:hover { transform:translateY(-3px); box-shadow:0 8px 20px rgba(0,255,204,0.2); }
+    .item button { width:100%; margin-top:10px; }
+    .item.locked { opacity:0.5; border-color:#555; }
+    .social-links a {
+        display:block; background:linear-gradient(135deg,#00cc99,#00ffcc);
+        color:#000; padding:14px; margin:12px 0; border-radius:12px;
+        text-decoration:none; font-size:18px; font-weight:bold;
+        font-family:'MinecraftBold',monospace;
+        transition:transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 4px 15px rgba(0,255,204,0.3);
+    }
+    .social-links a:hover { transform:translateY(-3px); box-shadow:0 8px 25px rgba(0,255,204,0.5); }
+    .floating {
+        position: fixed; font-size:26px; color:#ffff00;
+        pointer-events:none;
+        animation: floatUp 1.2s ease-out forwards;
+        text-shadow: 0 0 10px rgba(0,0,0,0.8), 0 0 6px #ff8800;
+        font-family:'MinecraftBold',monospace; z-index:9999; white-space:nowrap;
+    }
+    @keyframes floatUp {
+        0%   { transform:translateY(0) scale(1.2); opacity:1; }
+        100% { transform:translateY(-100px) scale(0.8); opacity:0; }
+    }
+    .signature {
+        position:fixed; bottom:12px; right:12px;
+        display:flex; align-items:center; gap:8px; z-index:100;
+        cursor:pointer; transition:transform 0.2s;
+    }
+    .signature:hover { transform:scale(1.05); }
+    .signature img {
+        width:38px; height:38px; border-radius:50%;
+        object-fit:cover; border:2px solid #ffff00;
+        box-shadow:0 0 10px rgba(255,255,0,0.5);
+    }
+    .signature-text {
+        background:linear-gradient(90deg,#ff0000,#ffff00,#ff0000);
+        background-size:200% 100%;
+        -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+        animation:rainbow 3s linear infinite;
+        font-size:20px; font-weight:bold; font-family:'MinecraftBold',monospace;
+    }
+    @keyframes rainbow {
+        0%   { background-position:0% 50%; }
+        50%  { background-position:100% 50%; }
+        100% { background-position:0% 50%; }
+    }
+    /* Админ */
+    #adminModal .modal-content { border-color:#ff4400; box-shadow:0 0 40px rgba(255,68,0,0.5); max-width:420px; }
+    #adminModal h2 { color:#ff4400; text-shadow:0 0 15px #ff4400; }
+    #passwordModal .modal-content { border-color:#ff8800; box-shadow:0 0 40px rgba(255,136,0,0.4); max-width:380px; }
+    .admin-input-group { display:flex; flex-direction:column; gap:12px; margin:15px 0; }
+    .admin-input-group input {
+        background:rgba(255,255,255,0.1); border:2px solid #ff4400;
+        color:#fff; padding:14px; font-size:20px; border-radius:10px;
+        font-family:'MinecraftBold',monospace; text-align:center; outline:none;
+        transition:border-color 0.2s, box-shadow 0.2s;
+        width:100%;
+    }
+    .admin-input-group input:focus { border-color:#ff8800; box-shadow:0 0 15px rgba(255,136,0,0.4); }
+    .admin-input-group label { font-size:15px; color:#aaa; }
+    .admin-btn { background:linear-gradient(135deg,#cc3300,#ff4400)!important; box-shadow:0 4px 15px rgba(255,68,0,0.4)!important; }
+    .admin-btn:hover:not(:disabled) { box-shadow:0 6px 20px rgba(255,68,0,0.7)!important; }
+    .admin-error { color:#ff4444; font-size:16px; animation:shake 0.4s ease-in-out; display:inline-block; }
+    @keyframes shake {
+        0%,100% { transform:translateX(0); }
+        25%     { transform:translateX(-8px); }
+        75%     { transform:translateX(8px); }
+    }
+    .admin-success { color:#00ffcc; font-size:16px; }
+    @media (max-width:380px) {
+        #big-clicker { width:220px; height:220px; }
+        .stats { font-size:20px; }
+        h1 { font-size:22px; }
+    }
+</style>
+</head>
+<body>
+<div id="particles"></div>
+<div id="game">
+    <h1>🔥 ЮТУБЕР КЛИКЕР 🔥</h1>
+    <div class="controls">
+        <button id="musicBtn">🎵 Музыка: Вкл</button>
+        <button id="volumeBtn">🔊 Громкость: 70%</button>
+        <button id="openShop">📦 Магазин прокачек</button>
+        <button id="openSocial">🌐 Мои соцсети</button>
+    </div>
+    <div id="big-clicker"></div>
+    <div class="stats">
+        Подписчики: <span id="subs">0</span><br>
+        В секунду: <span id="cps">0</span><br>
+        За клик: <span id="clickPower">1</span><br>
+        Кликов: <span id="clicks">0</span>
+    </div>
+</div>
+
+<!-- Магазин -->
+<div id="shopModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>📦 Магазин прокачек</h2>
+            <button class="close-btn" id="closeShop">✕ Закрыть</button>
+        </div>
+        <div class="shop-grid" id="shopGrid"></div>
+    </div>
+</div>
+
+<!-- Соцсети -->
+<div id="socialModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>🌐 Мои соцсети</h2>
+            <button class="close-btn" id="closeSocial">✕ Закрыть</button>
+        </div>
+        <div class="social-links">
+            <a href="https://www.tiktok.com/@redsba______" target="_blank">📱 TikTok — @redsba______</a>
+            <a href="https://t.me/redSBA_team" target="_blank">✈️ Telegram — redSBA_team</a>
+        </div>
+    </div>
+</div>
+
+<!-- Ввод пароля -->
+<div id="passwordModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>🔐 Вход в панель</h2>
+            <button class="close-btn" id="closePassword">✕</button>
+        </div>
+        <p style="color:#aaa;font-size:16px;">Введи пароль администратора</p>
+        <div class="admin-input-group">
+            <input type="password" id="passwordInput" placeholder="Пароль..." maxlength="30">
+        </div>
+        <div id="passwordError" style="min-height:28px;margin-bottom:10px;"></div>
+        <button class="admin-btn" id="submitPassword">🔓 Войти</button>
+    </div>
+</div>
+
+<!-- Админ панель -->
+<div id="adminModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>⚙️ АДМИН ПАНЕЛЬ</h2>
+            <button class="close-btn" id="closeAdmin">✕ Выйти</button>
+        </div>
+        <p style="color:#ff8800;font-size:15px;">👑 Добро пожаловать, redSBA!</p>
+        <div class="admin-input-group">
+            <label>Установить количество подписчиков:</label>
+            <input type="number" id="adminSubsInput" placeholder="Введи число..." min="0">
+        </div>
+        <button class="admin-btn" id="adminSetSubs">✅ Установить</button>
+        <br><br>
+        <div class="admin-input-group">
+            <label>Добавить подписчиков:</label>
+            <input type="number" id="adminAddInput" placeholder="Сколько добавить..." min="0">
+        </div>
+        <button class="admin-btn" id="adminAddSubs">➕ Добавить</button>
+        <div id="adminMsg" style="min-height:28px;margin:10px 0;"></div>
+        <br>
+        <button class="admin-btn" id="adminReset" style="background:linear-gradient(135deg,#440000,#880000)!important;">🗑️ Сбросить прогресс</button>
+    </div>
+</div>
+
+<!-- Подпись -->
+<div class="signature" id="signatureBtn" title="redSBA — нажми для входа в панель">
+    <img src="https://i.pinimg.com/736x/0b/b9/90/0bb9909bbf81821bd3b5364a13999b1b.jpg" alt="redSBA">
+    <span class="signature-text">be redSBA</span>
+</div>
+
+<audio id="clickSound" preload="auto">
+    <source src="https://raw.githubusercontent.com/redSBA/blogger-clicker/main/mouse-click-sound.mp3" type="audio/mpeg">
+</audio>
+<audio id="bgMusic" loop preload="auto">
+    <source src="https://raw.githubusercontent.com/redSBA/blogger-clicker/main/14.%20Start%20Music.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+// ============================================================
+// ДАННЫЕ ИГРЫ
+// ============================================================
+let subs = 0, totalCPS = 0, totalClicks = 0, clickPower = 1;
+
+const ADMIN_PASSWORD = 'chez_100500';
+
+const upgrades = [
+    { type:"auto",  name:"Владус",             cost:50,     cps:1.5,  owned:0, unlocked:true  },
+    { type:"auto",  name:"Роман Компот",        cost:110,    cps:3.5,  owned:0, unlocked:false },
+    { type:"auto",  name:"Dream",               cost:420,    cps:14,   owned:0, unlocked:false },
+    { type:"auto",  name:"Technoblade",         cost:1650,   cps:45,   owned:0, unlocked:false },
+    { type:"auto",  name:"Фиксай",              cost:7200,   cps:130,  owned:0, unlocked:false },
+    { type:"auto",  name:"MrBeast",             cost:22000,  cps:380,  owned:0, unlocked:false },
+    { type:"click", name:"Мощный клик +2",      cost:80,     power:2,  owned:0 },
+    { type:"click", name:"Супер клик +5",       cost:450,    power:5,  owned:0 },
+    { type:"click", name:"Мега клик +10",       cost:2200,   power:10, owned:0 },
+    { type:"click", name:"Гигантский клик +25", cost:9500,   power:25, owned:0 },
+    { type:"click", name:"Божественный клик +50",cost:40000, power:50, owned:0 },
+    { type:"click", name:"Легендарный клик +100",cost:160000,power:100,owned:0 }
+];
+const UPGRADE_DEFAULTS = upgrades.map(u => ({ cost: u.cost, unlocked: !!u.unlocked }));
+
+// ============================================================
+// ЧАСТИЦЫ
+// ============================================================
+(function() {
+    const c = document.getElementById('particles');
+    const colors = ['#ff00ff','#00ffcc','#ffff00','#ff8800','#00aaff'];
+    for (let i = 0; i < 18; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const sz = 2 + Math.random() * 4;
+        p.style.cssText = `left:${Math.random()*100}vw;width:${sz}px;height:${sz}px;background:${colors[i%colors.length]};animation-duration:${7+Math.random()*12}s;animation-delay:${Math.random()*10}s`;
+        c.appendChild(p);
+    }
+})();
+
+// ============================================================
+// ОТОБРАЖЕНИЕ (батч через RAF)
+// ============================================================
+let dirty = false;
+const subsEl = document.getElementById('subs');
+const cpsEl  = document.getElementById('cps');
+const cpEl   = document.getElementById('clickPower');
+const clkEl  = document.getElementById('clicks');
+
+function updateDisplay() { dirty = true; }
+(function loop() {
+    if (dirty) {
+        dirty = false;
+        subsEl.textContent = Math.floor(subs).toLocaleString('ru-RU');
+        cpsEl.textContent  = totalCPS.toFixed(1);
+        cpEl.textContent   = clickPower;
+        clkEl.textContent  = totalClicks.toLocaleString('ru-RU');
+    }
+    requestAnimationFrame(loop);
+})();
+
+// ============================================================
+// ПЛАВАЮЩИЙ ТЕКСТ — с пулом, без утечек
+// ============================================================
+let floatActive = 0;
+const MAX_FLOAT = 7;
+function spawnFloat(x, y, val) {
+    if (floatActive >= MAX_FLOAT) return;
+    floatActive++;
+    const el = document.createElement('div');
+    el.className = 'floating';
+    el.textContent = '+' + val;
+    el.style.left = (x - 15) + 'px';
+    el.style.top  = (y - 30) + 'px';
+    document.body.appendChild(el);
+    setTimeout(() => { el.remove(); floatActive--; }, 1200);
+}
+
+// ============================================================
+// КЛИК — троттлинг + батч (фикс автокликер-лага)
+// ============================================================
+let pendingClicks = 0;
+let lastSoundTime = 0;
+let lastFloatTime = 0;
+let flushPending = false;
+
+function flushClicks() {
+    if (pendingClicks === 0) { flushPending = false; return; }
+    const n = pendingClicks;
+    pendingClicks = 0;
+    flushPending = false;
+    subs += clickPower * n;
+    totalClicks += n;
+    if (totalClicks >= 80)    upgrades[1].unlocked = true;
+    if (totalClicks >= 250)   upgrades[2].unlocked = true;
+    if (totalClicks >= 800)   upgrades[3].unlocked = true;
+    if (totalClicks >= 4000)  upgrades[4].unlocked = true;
+    if (totalClicks >= 12000) upgrades[5].unlocked = true;
+    updateDisplay();
+    saveProgress();
+}
+
+const clickSound = document.getElementById('clickSound');
+const bigClicker = document.getElementById('big-clicker');
+
+bigClicker.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    pendingClicks++;
+
+    const now = performance.now();
+
+    // Звук — не чаще раза в 80мс
+    if (now - lastSoundTime > 80) {
+        lastSoundTime = now;
+        clickSound.currentTime = 0;
+        clickSound.volume = 0.8;
+        clickSound.play().catch(() => {});
+    }
+
+    // Плавающий текст — не чаще раза в 120мс
+    if (now - lastFloatTime > 120) {
+        lastFloatTime = now;
+        spawnFloat(e.clientX, e.clientY, clickPower);
+    }
+
+    // Флаш кликов через setTimeout 0 (батч за один тик)
+    if (!flushPending) {
+        flushPending = true;
+        setTimeout(flushClicks, 0);
+    }
+}, { passive: false });
+
+// ============================================================
+// МАГАЗИН
+// ============================================================
+const shopGrid = document.getElementById('shopGrid');
+function renderShop() {
+    shopGrid.innerHTML = '';
+    upgrades.forEach(item => {
+        const d = document.createElement('div');
+        d.className = 'item' + ((item.type==='auto' && !item.unlocked) ? ' locked' : '');
+        const locked = (item.type==='auto' && !item.unlocked) || subs < item.cost;
+        d.innerHTML = `<h3>${item.name}</h3>
+            <p>${item.type==='auto' ? `Даёт: <b>${item.cps}</b> /сек` : `Добавляет: <b>+${item.power}</b> за клик`}</p>
+            <p>Куплено: <b>${item.owned}</b></p>
+            <button ${locked?'disabled':''}>Купить — ${item.cost.toLocaleString('ru-RU')}</button>`;
+        d.querySelector('button').onclick = () => {
+            if (subs >= item.cost && (item.type!=='auto' || item.unlocked)) {
+                subs -= item.cost;
+                item.owned++;
+                if (item.type==='auto') { item.cost=Math.floor(item.cost*1.15); totalCPS+=item.cps; }
+                else { item.cost=Math.floor(item.cost*1.18); clickPower+=item.power; }
+                renderShop(); updateDisplay(); saveProgress();
+            }
+        };
+        shopGrid.appendChild(d);
+    });
+}
+
+// ============================================================
+// СОХРАНЕНИЕ
+// ============================================================
+function saveProgress() {
+    try {
+        localStorage.setItem('youtuberClickerSave', JSON.stringify({
+            subs, totalCPS, totalClicks, clickPower,
+            upgrades: upgrades.map(u => ({ owned:u.owned, cost:u.cost, unlocked:!!u.unlocked }))
+        }));
+    } catch(e){}
+}
+function loadProgress() {
+    try {
+        const d = JSON.parse(localStorage.getItem('youtuberClickerSave') || 'null');
+        if (!d) return;
+        subs=d.subs||0; totalCPS=d.totalCPS||0; totalClicks=d.totalClicks||0; clickPower=d.clickPower||1;
+        (d.upgrades||[]).forEach((s,i) => {
+            if (upgrades[i]) {
+                upgrades[i].owned = s.owned||0;
+                upgrades[i].cost  = s.cost||upgrades[i].cost;
+                if (s.unlocked!==undefined) upgrades[i].unlocked = s.unlocked;
+            }
+        });
+    } catch(e){}
+}
+
+// ============================================================
+// МОДАЛКИ
+// ============================================================
+const shopModal   = document.getElementById('shopModal');
+const socialModal = document.getElementById('socialModal');
+const passwordModal = document.getElementById('passwordModal');
+const adminModal  = document.getElementById('adminModal');
+const passwordInput = document.getElementById('passwordInput');
+const passwordError = document.getElementById('passwordError');
+const adminMsg = document.getElementById('adminMsg');
+
+document.getElementById('openShop').onclick = () => { shopModal.style.display='block'; renderShop(); };
+document.getElementById('closeShop').onclick = () => shopModal.style.display='none';
+document.getElementById('openSocial').onclick = () => socialModal.style.display='block';
+document.getElementById('closeSocial').onclick = () => socialModal.style.display='none';
+
+// Вход в админку через подпись
+document.getElementById('signatureBtn').onclick = () => {
+    passwordInput.value=''; passwordError.innerHTML='';
+    passwordModal.style.display='block';
+    setTimeout(()=>passwordInput.focus(),150);
+};
+document.getElementById('closePassword').onclick = () => passwordModal.style.display='none';
+
+function tryLogin() {
+    if (passwordInput.value === ADMIN_PASSWORD) {
+        passwordModal.style.display='none';
+        document.getElementById('adminSubsInput').value='';
+        document.getElementById('adminAddInput').value='';
+        adminMsg.innerHTML='';
+        adminModal.style.display='block';
+    } else {
+        passwordError.innerHTML='<span class="admin-error">❌ Неверный пароль!</span>';
+        passwordInput.value='';
+        passwordInput.focus();
+    }
+}
+document.getElementById('submitPassword').onclick = tryLogin;
+passwordInput.addEventListener('keydown', e => { if(e.key==='Enter') tryLogin(); });
+document.getElementById('closeAdmin').onclick = () => adminModal.style.display='none';
+
+document.getElementById('adminSetSubs').onclick = () => {
+    const v = parseInt(document.getElementById('adminSubsInput').value);
+    if (isNaN(v)||v<0) { adminMsg.innerHTML='<span class="admin-error">❌ Введи корректное число!</span>'; return; }
+    subs=v; updateDisplay(); saveProgress();
+    adminMsg.innerHTML=`<span class="admin-success">✅ Установлено: ${v.toLocaleString('ru-RU')}</span>`;
+};
+document.getElementById('adminAddSubs').onclick = () => {
+    const v = parseInt(document.getElementById('adminAddInput').value);
+    if (isNaN(v)||v<0) { adminMsg.innerHTML='<span class="admin-error">❌ Введи корректное число!</span>'; return; }
+    subs+=v; updateDisplay(); saveProgress();
+    adminMsg.innerHTML=`<span class="admin-success">✅ Добавлено: +${v.toLocaleString('ru-RU')}</span>`;
+};
+document.getElementById('adminReset').onclick = () => {
+    if (!confirm('Сбросить весь прогресс? Это нельзя отменить!')) return;
+    localStorage.removeItem('youtuberClickerSave');
+    subs=0; totalCPS=0; totalClicks=0; clickPower=1;
+    upgrades.forEach((u,i) => { u.owned=0; u.cost=UPGRADE_DEFAULTS[i].cost; if(u.type==='auto') u.unlocked=UPGRADE_DEFAULTS[i].unlocked; });
+    updateDisplay(); adminModal.style.display='none';
+};
+
+// ============================================================
+// МУЗЫКА
+// ============================================================
+const bgMusic = document.getElementById('bgMusic');
+let musicOn=true, volume=0.7;
+document.getElementById('musicBtn').onclick = () => {
+    musicOn=!musicOn;
+    if(musicOn){bgMusic.play().catch(()=>{}); document.getElementById('musicBtn').textContent='🎵 Музыка: Вкл';}
+    else{bgMusic.pause(); document.getElementById('musicBtn').textContent='🎵 Музыка: Выкл';}
+};
+document.getElementById('volumeBtn').onclick = () => {
+    volume = volume===0.7?0.3:(volume===0.3?1:0.7);
+    bgMusic.volume=volume; clickSound.volume=Math.min(volume*1.1,1);
+    document.getElementById('volumeBtn').textContent=`🔊 Громкость: ${Math.round(volume*100)}%`;
+};
+
+// ============================================================
+// СТАРТ + АВТОКЛИК
+// ============================================================
+window.addEventListener('load', () => {
+    loadProgress(); updateDisplay();
+    bgMusic.volume=volume; bgMusic.play().catch(()=>{});
+});
+
+// Авто-CPS: батч раз в 100мс
+setInterval(() => {
+    if (totalCPS>0) { subs+=totalCPS/10; updateDisplay(); }
+    saveProgress();
+}, 100);
+</script>
+</body>
+</html>
