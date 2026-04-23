@@ -177,10 +177,47 @@
         50%  { background-position:100% 50%; }
         100% { background-position:0% 50%; }
     }
-    /* Админ */
-    #adminModal .modal-content { border-color:#ff4400; box-shadow:0 0 40px rgba(255,68,0,0.5); max-width:420px; }
-    #adminModal h2 { color:#ff4400; text-shadow:0 0 15px #ff4400; }
+
+    /* Пароль модал */
     #passwordModal .modal-content { border-color:#ff8800; box-shadow:0 0 40px rgba(255,136,0,0.4); max-width:380px; }
+    
+    /* Админ меню */
+    #adminMenuModal .modal-content { 
+        border-color:#ff4400; 
+        box-shadow:0 0 40px rgba(255,68,0,0.5); 
+        max-width:420px;
+    }
+    #adminMenuModal h2 {
+        color:#ff4400;
+        text-shadow:0 0 15px #ff4400;
+    }
+    #adminMenuModal .admin-menu-btn {
+        background: linear-gradient(135deg,#ff4400,#ff6600)!important;
+        box-shadow: 0 4px 15px rgba(255,68,0,0.4)!important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin: 10px 0!important;
+        padding: 16px 20px!important;
+        font-size: 18px!important;
+    }
+    #adminMenuModal .admin-menu-btn:hover:not(:disabled) { 
+        box-shadow: 0 6px 20px rgba(255,68,0,0.7)!important; 
+    }
+    #adminMenuModal .admin-menu-btn img {
+        width: 30px;
+        height: 30px;
+        border-radius: 6px;
+    }
+
+    /* Админ панель */
+    #adminModal .modal-content { 
+        border-color:#ff4400; 
+        box-shadow:0 0 40px rgba(255,68,0,0.5); 
+        max-width:420px;
+    }
+    #adminModal h2 { color:#ff4400; text-shadow:0 0 15px #ff4400; }
     .admin-input-group { display:flex; flex-direction:column; gap:12px; margin:15px 0; }
     .admin-input-group input {
         background:rgba(255,255,255,0.1); border:2px solid #ff4400;
@@ -200,6 +237,43 @@
         75%     { transform:translateX(8px); }
     }
     .admin-success { color:#00ffcc; font-size:16px; }
+
+    /* Настройки */
+    #settingsModal .modal-content {
+        border-color: #00aaff;
+        box-shadow: 0 0 40px rgba(0,170,255,0.4);
+        max-width: 420px;
+    }
+    #settingsModal h2 {
+        color: #00aaff;
+        text-shadow: 0 0 15px #00aaff;
+    }
+    .settings-section {
+        background: rgba(255,255,255,0.05);
+        border: 2px solid rgba(0,170,255,0.3);
+        border-radius: 12px;
+        padding: 15px;
+        margin: 12px 0;
+        text-align: left;
+    }
+    .settings-section h3 {
+        color: #00aaff;
+        margin-top: 0;
+        font-size: 16px;
+    }
+    .settings-section p {
+        color: #aaa;
+        font-size: 14px;
+        margin: 8px 0;
+    }
+    .reset-btn {
+        background: linear-gradient(135deg,#bb0000,#ff2200)!important;
+        box-shadow: 0 4px 15px rgba(255,34,0,0.5)!important;
+    }
+    .reset-btn:hover:not(:disabled) {
+        box-shadow: 0 6px 20px rgba(255,34,0,0.7)!important;
+    }
+
     @media (max-width:380px) {
         #big-clicker { width:220px; height:220px; }
         .stats { font-size:20px; }
@@ -216,6 +290,7 @@
         <button id="volumeBtn">🔊 Громкость: 70%</button>
         <button id="openShop">📦 Магазин прокачек</button>
         <button id="openSocial">🌐 Мои соцсети</button>
+        <button id="openSettings">⚙️ Настройки</button>
     </div>
     <div id="big-clicker"></div>
     <div class="stats">
@@ -267,14 +342,28 @@
     </div>
 </div>
 
-<!-- Админ панель -->
+<!-- Админ меню -->
+<div id="adminMenuModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>⚙️ ПАНЕЛЬ АДМИНИСТРАТОРА</h2>
+            <button class="close-btn" id="closeAdminMenu">✕ Выйти</button>
+        </div>
+        <p style="color:#ff8800;font-size:15px;">👑 Добро пожаловать, redSBA!</p>
+        <button class="admin-menu-btn" id="openAdminPanel">
+            <img src="https://raw.githubusercontent.com/redSBA/-redSBA/refs/heads/main/redSBA.jpg" alt="Панель">
+            <span>Редактор денег</span>
+        </button>
+    </div>
+</div>
+
+<!-- Админ панель (редактор денег) -->
 <div id="adminModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h2>⚙️ АДМИН ПАНЕЛЬ</h2>
-            <button class="close-btn" id="closeAdmin">✕ Выйти</button>
+            <h2>💰 Редактор денег</h2>
+            <button class="close-btn" id="closeAdmin">✕ Назад</button>
         </div>
-        <p style="color:#ff8800;font-size:15px;">👑 Добро пожаловать, redSBA!</p>
         <div class="admin-input-group">
             <label>Установить количество подписчиков:</label>
             <input type="number" id="adminSubsInput" placeholder="Введи число..." min="0">
@@ -287,8 +376,28 @@
         </div>
         <button class="admin-btn" id="adminAddSubs">➕ Добавить</button>
         <div id="adminMsg" style="min-height:28px;margin:10px 0;"></div>
-        <br>
-        <button class="admin-btn" id="adminReset" style="background:linear-gradient(135deg,#440000,#880000)!important;">🗑️ Сбросить прогресс</button>
+    </div>
+</div>
+
+<!-- Настройки -->
+<div id="settingsModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>⚙️ Настройки</h2>
+            <button class="close-btn" id="closeSettings">✕ Закрыть</button>
+        </div>
+        
+        <div class="settings-section">
+            <h3>💾 Сохранение</h3>
+            <p>Ваш прогресс автоматически сохраняется каждые 100ms</p>
+            <button id="manualSave" class="admin-btn" style="width:100%;margin-top:10px;">💾 Сохранить сейчас</button>
+        </div>
+
+        <div class="settings-section">
+            <h3>🔄 Сброс игры</h3>
+            <p>Внимание: это удалит весь прогресс!</p>
+            <button id="resetGame" class="reset-btn" style="width:100%;margin-top:10px;">🗑️ Сбросить игру</button>
+        </div>
     </div>
 </div>
 
@@ -298,9 +407,6 @@
     <span class="signature-text">be redSBA</span>
 </div>
 
-<audio id="clickSound" preload="auto">
-    <source src="https://raw.githubusercontent.com/redSBA/blogger-clicker/main/mouse-click-sound.mp3" type="audio/mpeg">
-</audio>
 <audio id="bgMusic" loop preload="auto">
     <source src="https://raw.githubusercontent.com/redSBA/blogger-clicker/main/14.%20Start%20Music.mp3" type="audio/mpeg">
 </audio>
@@ -384,9 +490,9 @@ function spawnFloat(x, y, val) {
 
 // ============================================================
 // КЛИК — троттлинг + батч (фикс автокликер-лага)
+// БЕЗ ЗВУКА (удален)
 // ============================================================
 let pendingClicks = 0;
-let lastSoundTime = 0;
 let lastFloatTime = 0;
 let flushPending = false;
 
@@ -406,7 +512,6 @@ function flushClicks() {
     saveProgress();
 }
 
-const clickSound = document.getElementById('clickSound');
 const bigClicker = document.getElementById('big-clicker');
 
 bigClicker.addEventListener('pointerdown', (e) => {
@@ -414,14 +519,6 @@ bigClicker.addEventListener('pointerdown', (e) => {
     pendingClicks++;
 
     const now = performance.now();
-
-    // Звук — не чаще раза в 80мс
-    if (now - lastSoundTime > 80) {
-        lastSoundTime = now;
-        clickSound.currentTime = 0;
-        clickSound.volume = 0.8;
-        clickSound.play().catch(() => {});
-    }
 
     // Плавающий текст — не чаще раза в 120мс
     if (now - lastFloatTime > 120) {
@@ -495,15 +592,24 @@ function loadProgress() {
 const shopModal   = document.getElementById('shopModal');
 const socialModal = document.getElementById('socialModal');
 const passwordModal = document.getElementById('passwordModal');
+const adminMenuModal = document.getElementById('adminMenuModal');
 const adminModal  = document.getElementById('adminModal');
+const settingsModal = document.getElementById('settingsModal');
 const passwordInput = document.getElementById('passwordInput');
 const passwordError = document.getElementById('passwordError');
 const adminMsg = document.getElementById('adminMsg');
 
+// Магазин
 document.getElementById('openShop').onclick = () => { shopModal.style.display='block'; renderShop(); };
 document.getElementById('closeShop').onclick = () => shopModal.style.display='none';
+
+// Соцсети
 document.getElementById('openSocial').onclick = () => socialModal.style.display='block';
 document.getElementById('closeSocial').onclick = () => socialModal.style.display='none';
+
+// Настройки
+document.getElementById('openSettings').onclick = () => { settingsModal.style.display='block'; };
+document.getElementById('closeSettings').onclick = () => settingsModal.style.display='none';
 
 // Вход в админку через подпись
 document.getElementById('signatureBtn').onclick = () => {
@@ -516,10 +622,7 @@ document.getElementById('closePassword').onclick = () => passwordModal.style.dis
 function tryLogin() {
     if (passwordInput.value === ADMIN_PASSWORD) {
         passwordModal.style.display='none';
-        document.getElementById('adminSubsInput').value='';
-        document.getElementById('adminAddInput').value='';
-        adminMsg.innerHTML='';
-        adminModal.style.display='block';
+        adminMenuModal.style.display='block';
     } else {
         passwordError.innerHTML='<span class="admin-error">❌ Неверный пароль!</span>';
         passwordInput.value='';
@@ -528,8 +631,22 @@ function tryLogin() {
 }
 document.getElementById('submitPassword').onclick = tryLogin;
 passwordInput.addEventListener('keydown', e => { if(e.key==='Enter') tryLogin(); });
-document.getElementById('closeAdmin').onclick = () => adminModal.style.display='none';
 
+// Админ меню
+document.getElementById('closeAdminMenu').onclick = () => adminMenuModal.style.display='none';
+document.getElementById('openAdminPanel').onclick = () => {
+    adminMenuModal.style.display='none';
+    document.getElementById('adminSubsInput').value='';
+    document.getElementById('adminAddInput').value='';
+    adminMsg.innerHTML='';
+    adminModal.style.display='block';
+};
+document.getElementById('closeAdmin').onclick = () => {
+    adminModal.style.display='none';
+    adminMenuModal.style.display='block';
+};
+
+// Редактор денег
 document.getElementById('adminSetSubs').onclick = () => {
     const v = parseInt(document.getElementById('adminSubsInput').value);
     if (isNaN(v)||v<0) { adminMsg.innerHTML='<span class="admin-error">❌ Введи корректное число!</span>'; return; }
@@ -542,12 +659,29 @@ document.getElementById('adminAddSubs').onclick = () => {
     subs+=v; updateDisplay(); saveProgress();
     adminMsg.innerHTML=`<span class="admin-success">✅ Добавлено: +${v.toLocaleString('ru-RU')}</span>`;
 };
-document.getElementById('adminReset').onclick = () => {
-    if (!confirm('Сбросить весь прогресс? Это нельзя отменить!')) return;
+
+// Настройки - сохранение
+document.getElementById('manualSave').onclick = () => {
+    saveProgress();
+    const btn = document.getElementById('manualSave');
+    const orig = btn.textContent;
+    btn.textContent = '✅ Сохранено!';
+    setTimeout(() => { btn.textContent = orig; }, 2000);
+};
+
+// Настройки - сброс
+document.getElementById('resetGame').onclick = () => {
+    if (!confirm('⚠️ ВНИМАНИЕ! Это НАВСЕГДА удалит весь прогресс!\n\nТы уверен?')) return;
     localStorage.removeItem('youtuberClickerSave');
     subs=0; totalCPS=0; totalClicks=0; clickPower=1;
-    upgrades.forEach((u,i) => { u.owned=0; u.cost=UPGRADE_DEFAULTS[i].cost; if(u.type==='auto') u.unlocked=UPGRADE_DEFAULTS[i].unlocked; });
-    updateDisplay(); adminModal.style.display='none';
+    upgrades.forEach((u,i) => { 
+        u.owned=0; 
+        u.cost=UPGRADE_DEFAULTS[i].cost; 
+        if(u.type==='auto') u.unlocked=UPGRADE_DEFAULTS[i].unlocked; 
+    });
+    updateDisplay(); 
+    settingsModal.style.display='none';
+    alert('✅ Игра полностью сброшена!');
 };
 
 // ============================================================
@@ -562,7 +696,7 @@ document.getElementById('musicBtn').onclick = () => {
 };
 document.getElementById('volumeBtn').onclick = () => {
     volume = volume===0.7?0.3:(volume===0.3?1:0.7);
-    bgMusic.volume=volume; clickSound.volume=Math.min(volume*1.1,1);
+    bgMusic.volume=volume;
     document.getElementById('volumeBtn').textContent=`🔊 Громкость: ${Math.round(volume*100)}%`;
 };
 
